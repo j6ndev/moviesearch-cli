@@ -2,6 +2,9 @@
   "name": "moviesearch-cli",
   "version": "1.0.0",
   "description": "Search a movie title in IMDB page",
+  "bin": {
+    "moviesearch": "./bin/movie-search.js"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
