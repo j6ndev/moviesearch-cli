@@ -1,7 +1,13 @@
 #!/usr/bin/env node
 
-const https = require('https');
+const axios = require('axios');
 const cheerio = require('cheerio');
+const Ora = require('ora');
+
+const spinner = new Ora({
+  text: 'Loading movie titles',
+  color: 'yellow'
+});
 
 const [movieName] = process.argv.slice(2);
 
@@ -12,29 +18,33 @@ if (!movieName) {
 
 const URL = makeUrl(movieName);
 
-imdbSearch(URL, (err, movies) => {
-  if (err) throw err;
-  if (movies.length > 0) {
-    movies.forEach(movie => console.log(movie));
-    process.exit(1);
-  }
-  console.log(`No results found for "${movieName}"`);
-});
+imdbSearch(URL)
+  .then(pageParser)
+  .then(logMovies)
+  .catch(logError);
 
 function makeUrl(query) {
   return `https://www.imdb.com/find?ref_=nv_sr_fn&q=${query}&s=all`;
 }
 
-function imdbSearch(url, cb) {
-  https.get(url, response => {
-    let html;
-    response.setEncoding('utf8');
-    response.on('data', chunk => (html += chunk));
-    response.on('end', () => {
-      const moviesData = pageParser(html);
-      cb(null, moviesData);
-    });
-  });
+function logMovies(movies) {
+  if (movies && movies.length > 0) {
+    spinner.stop();
+    movies.forEach(movie => console.log(movie));
+    return;
+  }
+  console.log(`No results found for: "${movieName}"`);
+}
+
+function logError(err) {
+  spinner.fail();
+  console.log(err.message);
+  process.exit(1);
+}
+
+function imdbSearch(url) {
+  spinner.start();
+  return axios.get(url).then(response => response.data);
 }
 
 function pageParser(page) {

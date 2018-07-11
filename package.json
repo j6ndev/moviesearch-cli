@@ -20,6 +20,8 @@
   },
   "homepage": "https://github.com/vamtha/moviesearch-cli#readme",
   "dependencies": {
-    "cheerio": "^1.0.0-rc.2"
+    "axios": "^0.18.0",
+    "cheerio": "^1.0.0-rc.2",
+    "ora": "^2.1.0"
   }
 }
